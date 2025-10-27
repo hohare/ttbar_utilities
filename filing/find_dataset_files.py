@@ -2,7 +2,7 @@
 Based on Joseph Dulemba NanoAOD_Analyses make_dataset_txt_files.py
 
 Honor Hare
-Updated: March 2025
+Updated: October 2025 to have dataset argument
 """
 import os, sys
 #from pdb import set_trace
@@ -18,6 +18,7 @@ parser.add_argument("-e", "--era", default=None, help="Build DAS path manually u
 parser.add_argument("-f", "--format", default="NANOAODSIM",help="Build DAS path manually using sampleName/era/format")
 parser.add_argument('-l', "--location", default="fnal", help="Which xrootd prefix to use")
 parser.add_argument('-v', "--verbose", action='store_true')
+parser.add_argument('-d', "--dataset", default="Inputs/DAS_datasets.json", help="file where the dataset is defined")
 args = parser.parse_args()
 
 #interface through which to query the das system
@@ -31,7 +32,7 @@ def query(query_str, verbose=False):
     output = output.decode()
     return output.split('\n')[:-1]
 
-datasets = json.load(open("pretraining/Inputs/DAS_datasets.json"))[args.year]
+datasets = json.load(open(args.dataset))[args.year]
 # if don't give an absolute path, assume is a provided DAS path
 if args.sampleName[0]!="/" and args.sampleName in datasets:
     dataset = datasets[args.sampleName]

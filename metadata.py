@@ -79,7 +79,7 @@ def get_infos(fileset, fpath=None, verbose=False):
         
         sample_dict[dataset] = {
             'nEvts': nevents,
-            'nGenEvts': n_gen_events,
+            'nGenEvts': int(n_gen_events),
             'sumOfWeights': float(n_sum_of_weights),
             'isData': is_data,
             #'wcNames': utils.get_list_of_wc_names(fileset[dataset][0])
