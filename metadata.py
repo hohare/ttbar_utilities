@@ -1,6 +1,21 @@
 import uproot
 import json
 import numpy as np
+from tqdm import tqdm
+
+def combine_metadata_files(path):
+    import glob
+    from coffea.util import load, save
+    from coffea.processor import defaultdict_accumulator
+    files = glob.glob('/uscms_data/d3/honor/ttbareft/Outputs/2017_ST_tchannel_top/summary*.coffea')
+    totals = defaultdict_accumulator(float)
+    for f in tqdm(files):
+        meta = load(f)
+        totals += meta['cutflow']
+        print(meta['cutflow']['InputEventCount'])
+        #TODO add call to merge all the meta['outfiles']
+
+    return totals
 
 def get_wcs():
     """NOT COMPLETED YET"""
@@ -65,7 +80,7 @@ def get_infos(fileset, fpath=None, verbose=False):
         n_sum_of_weights = 0
         sow_lhe_wgts = 0
         is_data_lst = []
-        for f in fileset[dataset]:
+        for f in tqdm(fileset[dataset]):
             i_events, i_gen_events, i_sum_of_weights, sow_lhe_wgts, is_data = get_info(f, "Events", verbose=verbose)
             nevents += i_events
             n_gen_events += i_gen_events
