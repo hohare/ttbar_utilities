@@ -9,29 +9,31 @@ prefix_dict = {
     "global": "root://cms-xrd-global.cern.ch/"
 }
 
-def getFileset(sample, startFile=0, nFiles=-1, verbose=False, ):
+def getFileset(sample, startFile=0, nFiles=-1, verbose=False, 
+               JSONDir="/uscms/home/honor/private/ttbareft/Inputs/"
+              ):
     f_ = sample.find("_")
     year = sample[:f_]
-    detailKey = sample[(f_+1):]
-
+    JSONDir = JSONDir + year + "/"
+    
+    if "skims" in sample:
+        detailKey = sample.replace(year+"_skims_","")
+        JSONDir = os.path.join(JSONDir, "skims/")
+    else:
+        detailKey = sample[(f_+1):]
+    
     # find all json files for the sample or sample collection    
     fileset_all = {}
-    #for sample in rD[dataset]:
-    # temporary. eventually change to use environ
-    #else: path = 'Inputs/'
-    JSONDir = "/uscms/home/honor/private/ttbareft_broken/ttbareft/Inputs/" + year + "/"
-    #JSONDir = environ['TTBAR_BASE'] + '/Inputs/' + year + "/"
 
     inputSamples = glob.glob(JSONDir+"*"+detailKey+"*.json")
     if len(inputSamples) == 0:
         raise Exception("Error: no json file like", detailKey, " found in:", JSONDir)
-    
     # open all json files and dump them into the dictionary
     for s in inputSamples:
         if verbose:
             print('reading from', s)
         fileset_all.update(json.load(open(s ,'r')))
-    
+
     # process a subset of a sample
     fileset = {}
     for n, rFiles in fileset_all.items():
@@ -71,34 +73,49 @@ def search_save_filepaths(prefix, search_dir, datasetName):
     with open(f'Inputs/pretraining/{datasetName}.json', 'w') as f:
         json.dump(fdict, f, indent=4)
 
-def construct_fileset(jsonFiles, prefix=None):
-    fileset = {}
-    for jsonFile in jsonFiles:
-        fileset.update(json.load(open(jsonFile)))
-    if prefix != "None":
-        fileset = apply_prefix(fileset, prefix)
-        
-    return fileset
+def save_skimlist2jsons(year):
+    import subprocess
+    import glob
+    import json
 
-def make_skim_fileset(basepath, folders):
-    """Constructs and renames fileset by searching for merged files."""
-    filesets = {}
-    for folder in folders:
-        files = glob.glob(os.path.join(basepath,folder,"merged*.root"))
-        for file in files:
-            dataset = "_".join(file.split("/")[-1].split("_")[1:-2])
-            if dataset in filesets: filesets[dataset].append(file)
-            else: filesets[dataset] = [file]
-    return filesets
+    #***** RETRIEVE LIST OF FILES PER DATASET AND STORE IN .TXT *****#
+    #FNAL
+    cmd = ["./get_fileset.sh", year, "FNAL"]
+    proc = subprocess.Popen(cmd, stdin=subprocess.PIPE)
+    proc.communicate()
+    #CERN
+    cmd = ["./get_fileset.sh", year, "CERN"]
+    proc = subprocess.Popen(cmd, stdin=subprocess.PIPE)
+    proc.communicate()
+
+    basepath = f"~/private/ttbar/Inputs/{year}/skims/"
+    #***** PUT LISTS INTO JSONS *****#
+    filelist = glob.glob(basepath+"*.txt")
+    for fpath in filelist:
+        with open(fpath, "r") as f:
+            fset = f.readlines()
+        fset = [f[:-1] for f in fset]#remove newline
+        dataset = fpath.split("/")[-1][:-9]#remove -LOCATION.root
+        with open(basepath+f"{dataset}.json", "w") as f:
+            json.dump({dataset: fset}, f, indent=4)
+    
+    
 
 if __name__ == '__main__':
     parser = ArgumentParser()
+    parser.add_argument('--skims', '-k', action="store_true")
+    parser.add_argument('--year', '-y')
     parser.add_argument('--search', '-s', action="store_true")
     parser.add_argument('--prefix', '-p', default="root://cmseos.fnal.gov/")
     parser.add_argument('--fpath',  '-f')
     parser.add_argument('--name',   '-n')
     args = parser.parse_args()
 
-    if args.search:
+    if args.skims:
+        if "year" not in args:
+            print("Must specify year for skims with --year")
+        else:
+            save_skimlist2jsons(args.year)
+    elif args.search:
         search_save_filepaths(args.prefix, args.fpath, args.name)
         

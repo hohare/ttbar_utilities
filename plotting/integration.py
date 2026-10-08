@@ -9,13 +9,13 @@ default_mapping = {
 # Potential groups of datasets to plot
 ttbar_datasets = ['Correct','Unmatchable','Wrong','merged','tau']
 processes = {
-    "datadriven": ttbar_datasets+['tt DL','Single Top','EW+QCD (Data-Driven)'],
-    "process": ['tt SL','tt DL','Single Top','W+jets', 'Misc', 'QCD (sim)'],
-    "process_ttSL": ttbar_datasets+['tt DL','Single Top','W+jets','Misc', 'QCD (sim)'],
-    "process_EW": ['tt SL','tt DL','Single Top','EW (sim)', 'QCD (sim)'],
-    "simple": ['TTbar','Single Top', 'EW (sim)', 'QCD (sim)'],
-    "EWQCD_estimation": ['TTbar','Single Top', 'EW+QCD (Data-Driven)'],
-    "preEWQCD_estimation": ['TTbar','Single Top', 'W+jets','Misc', 'QCD (sim)']
+    "datadriven": ttbar_datasets+['tt DL','Single top quark','EW+QCD (Data-Driven)'],
+    "process": ['tt SL','tt DL','Single top quark','W+jets', 'Misc', 'QCD (sim)'],
+    "process_ttSL": ttbar_datasets+['tt DL','Single top quark','W+jets','Misc', 'QCD (sim)'],
+    "process_EW": ['tt SL','tt DL','Single top quark','EW (sim)', 'QCD (sim)'],
+    "simple": ['TTbar','Single top quark', 'EW (sim)', 'QCD (sim)'],
+    "EWQCD_estimation": ['TTbar','Single top quark', 'EW+QCD (Data-Driven)'],
+    "preEWQCD_estimation": ['TTbar','Single top quark', 'W+jets','Misc', 'QCD (sim)']
 }
 
 def complete_integration(histograms, distribution, **kwargs):

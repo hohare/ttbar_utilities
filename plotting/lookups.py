@@ -4,6 +4,7 @@ import mplhep as hep
 import matplotlib.pyplot as plt
 
 def plotLookup(lookup, **kwargs):
+    """Plot a coffea lookup table for 1 or 2 dimensions"""
     axes = lookup._axes
     vals = lookup._values
 
@@ -36,24 +37,20 @@ def printCorr(corr):
     for ix in corr.inputs:
         print(f"   Input {ix.name} ({ix.type}): {ix.description}")
 
-binnings = {
-    "puJetId": {
-        "pt": [20,25,30,40,50],
-        "eta": []
-    }
-}
+def plotCorr(corr, obj, x_lim, y_lim, WP='T', setting='nom', vlim=None):
+    """Plot a 2-D correctionlib correction"""
+    xs  = np.linspace(x_lim[0],  x_lim[1],  x_lim[2],  endpoint=False)
+    ys = np.linspace(y_lim[0], y_lim[1], y_lim[2], endpoint=False)
 
-def plotCorr(corr, pt_lim, eta_lim, WP='T', syst='nom', obj='jet', vlim=None):
-    pts  = np.linspace(pt_lim[0],  pt_lim[1],  pt_lim[2],  endpoint=False)
-    etas = np.linspace(eta_lim[0], eta_lim[1], eta_lim[2], endpoint=False)
-
-    x,y = np.meshgrid(pts, etas)
-    if obj=='jet': res = corr.evaluate(np.ravel(y), np.ravel(x), syst, WP)
+    x,y = np.meshgrid(xs, ys)
+    if obj=='jet': res = corr.evaluate(np.ravel(y), np.ravel(x), setting, WP)
     elif obj=='mu': res = corr.evaluate(abs(np.ravel(y)), np.ravel(x), syst)
+    elif obj=='jetveto': res = corr.evaluate(setting, x, y)# etas and phis
     unflat = np.reshape(res, x.shape)
 
     fig, ax = plt.subplots()
     res = ax.pcolormesh(x,y,unflat, vmin=0.8, vmax=1.2)
     fig.colorbar(res)
+    ax.set_title(setting)
 
     return fig, ax

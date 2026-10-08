@@ -9,7 +9,7 @@ dataset2color = {
     "TTbar": colors[0],
     "tt SL": colors[0],
     "tt DL": colors[5],
-    "Single Top": colors[1],
+    "Single top quark": colors[1],
     "EW (sim)": colors[2], 
     "QCD (sim)": colors[3],
     # longer format
@@ -60,6 +60,7 @@ variables = {
     'deltay_abs': r'|y_1-y_2}',
     'delta_yabs': r'|y_1|-|y_2|',
     'deltaphi': r'\Delta\phi',
+    'discrim': r'\lambda',
 }
 
 units = {
@@ -74,6 +75,9 @@ units = {
 }
 
 objects = {
+    'joint': '',
+    'mass': r'_{m}',
+    'nu': r'_{\nu}',
     'ttbar': r't\bar{t}',
     'hadt' : 't_{h}',
     'lept' : r't_{\mathscr{l}}',
@@ -110,5 +114,7 @@ def get_axisname(var, obj):
     index = list(objects.keys()).index(obj)
     if var.startswith('delta'):
         return r'$'+variables[var]+'('+objects[obj]+')$ '
+    elif var == 'discrim':
+        return r'$'+variables[var]+objects[obj]+'$ '
     else:
         return r'$'+variables[var]+'^{('+objects[obj]+')}$ ' + units[var]

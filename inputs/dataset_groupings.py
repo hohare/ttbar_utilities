@@ -85,7 +85,7 @@ def get_grouping(year):
         "tt SL": ttbar_sl,
         "tt DL": ttbar_dilep,
         "TTbar": ttbar_sl+ttbar_dilep,
-        "Single Top": ST+tW,
+        "Single top quark": ST+tW,
         "tW": tW,
         "W+jets": WJets,
         "DY": DY,

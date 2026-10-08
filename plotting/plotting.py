@@ -44,7 +44,4 @@ def plot_histogram_list(histograms, mc_datasets, sideband, year, blinded=True):
 
     axes[0].set_xlabel('')
 
-    axes[0].legend(title=f'CR: {sideband_map[str(sideband)]}', title_fontsize=16, 
-                   fontsize=10, ncols=round(len(mc_labels)/4), frameon=True)
-
-    return fig, axes
+    return fig, axes, mc_labels

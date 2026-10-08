@@ -34,6 +34,11 @@ def run_only_files(args, datasets):
     #if given an era, then assume manual DAS path construction
     elif args.era is not None:
         dataset="/"+"/".join([args.sampleName, args.era, args.format])
+    elif args.sampleName[0]=="/":
+        dataset = args.sampleName
+        _split = dataset.split("/")
+        args.sampleName = "data_"+_split[2].split("_")[0]
+        args.sampleName = args.sampleName[:args.sampleName.find('-')] + "_"+_split[1]
     #otherwise print list of suggested samples
     else:
         print('Need a valid dataset to search for.\nSee DAS_datasets.json for examples')
@@ -70,19 +75,24 @@ def run_intermediary(args):
         for ds in datasets:
             args.sampleName=ds
             result = run_only_files(args, datasets)
+    elif 'Data' in args.sampleName:
+        sampleNames = datasets[args.sampleName]
+        for name in sampleNames:
+            args.sampleName = name
+            result = run_only_files(args, datasets)
     else:
         result = run_only_files(args, datasets)
 
 if __name__=="__main__":
     parser = ArgumentParser("Query DAS for file location strings")
-    parser.add_argument("sampleName", help="valid sample key from Inputs/samples_201X.json")
     parser.add_argument("year", choices=["2016preVFP","2016postVFP","2017","2018"], help='self explanatory')
+    parser.add_argument("sampleName", help="valid sample key from Inputs/samples_201X.json")
     parser.add_argument("-s", "--searchPath", action='store_true', help='Construct the DAS path')
     parser.add_argument("-e", "--era", default=None, help="Build DAS path manually using sampleName/era/format")
     parser.add_argument("-f", "--format", default="NANOAODSIM",help="Build DAS path manually using sampleName/era/format")
     parser.add_argument('-l', "--location", default="fnal", help="Which xrootd prefix to use")
     parser.add_argument('-v', "--verbose", action='store_true')
-    parser.add_argument('-p', "--sample_path", default="/uscms/home/honor/private/ttbareft_broken/ttbareft/Inputs/", help="path to the necessary inputs and outputs")
+    parser.add_argument('-p', "--sample_path", default="/uscms/home/honor/private/ttbareft/Inputs/", help="path to the necessary inputs and outputs")
     args = parser.parse_args()
 
     if args.searchPath:
@@ -90,7 +100,7 @@ if __name__=="__main__":
         else: isAPV=False
         
         datasearch = args.sampleName+eras[args.year]+"/"+args.format
-        
+
         print('Querying for datasets...')
         datasets = query("".join(["dataset status=VALID ","dataset=",datasearch]))
         print(f'Found {len(datasets)} datasets!\n')

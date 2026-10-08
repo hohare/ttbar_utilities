@@ -3,84 +3,64 @@ import subprocess
 import json
 import time
 import glob
+import uuid
 from argparse import ArgumentParser
 
-def merge_skims(path, fname):
-    injson = json.loads(open(path+fname).read())
-    # one json holds multiple jobs
-    # per summary file
-    #mergedFiles = []
-    for key in injson:
-        flist = injson[key]
-        # skims have been divided into groups
-        for group in range(len(flist)):
-            # each group needs to be merge into one root file
-            outname = "_".join(["merged", key, str(group)])+".root"
-            #mergedFiles.append(outname)
-            cmd = ["hadd",  path+outname] + flist[group][:5]
-            #"-f",
-
-            tstart=time.time()
-            proc = subprocess.Popen(cmd, stdin=subprocess.PIPE)
-            proc.communicate()
-            elapsed = time.time()-tstart
-            print("Total time: %.1f seconds"%elapsed)
-
-
-inplace = "Outputs/sideband_tests/"
 nobackup = "/uscms_data/d3/honor/Outputs/"
-def merge_skims_v2(path, fname):
-    injson = json.loads(open(path+fname).read())
-    # one json holds multiple jobs
-    # per summary file
-    #cmds = []
-    for key in injson:
-        flist = injson[key]
-        # skims have been divided into groups
-        for group in range(len(flist)):
-            thislist = [f.replace(inplace, nobackup) for f in flist[group]]
-            # each group needs to be merge into one root file
-            outname = "_".join(["merged", key, str(group)])+".root"
-            cmd = ["hadd", "-fk",  path+outname] + thislist#[:20]
-            #cmds.append(cmd)
-            print(cmd)
+cerneos = "root://eosuser.cern.ch//eos/user/h/hohare/skims"
+fnaleos = "root://cmseos.fnal.gov//store/user/honor/skims"
 
-            #tstart=time.time()
-            #proc = subprocess.Popen(cmd, stdin=subprocess.PIPE)
-            #proc.communicate()
-            #elapsed = time.time()-tstart
-            #print("Total time: %.1f seconds"%elapsed)
-
-#xrdfsls -u /store/user/honor/ttbareft/skims/TTTo2L2Nu_TuneCP5_13TeV-powheg-pythia8 > filelst.txt
-#xrdfsls -u /store/user/honor/ttbareft/skims/TTTo2L2Nu_TuneCP5_13TeV-powheg-pythia8 > filelist.txt
 
 def merge_eos_skims(dataset_name,
-                    year,
-                    chunksize=300,
-                    syst_shift='nominal',
+                    args,
+                    #syst_shift='nominal',
                     eospath='/store/user/honor/skims/',
-                    outpath=''
+                    outpath='',
+                    suppression_level='-f505',
+                    starter = 'root://cmseosmgm01.fnal.gov:1094/'
                     ):
     #before this point have confirmed that all files in the summary outfiles list is unique
     #should probably also do a check that nfiles in summary matches nfiles in eos dir
-    eosfolder = os.path.join(eospath,year,dataset_name)
+    eosfolder = os.path.join(eospath,args.year,dataset_name)
     # Acquire file list
     #cmd = ['xrdfsls','-u', eosfolder,  "> filelst.txt"]#f"| grep \'{sy"ST_shift}.*\.root\'",
     #idk why couldnt run the xrdfsls command from here (wasnt a recognized command)
-    cmd = ['./get_flist.sh', year, dataset_name]
+    cmd = ['./get_flist.sh', args.year, dataset_name]
     proc = subprocess.Popen(cmd, stdin=subprocess.PIPE)
     proc.communicate()
     
     # Divide file list
     with open('filelst.txt') as f:
-        lst = [line.rstrip() for line in f if syst_shift in line]
-    chunks = [lst[x:x+chunksize] for x in range(0, len(lst), chunksize)]
-    # Merge each division
-    for i,chunk in enumerate(chunks):
-        merged_name = os.path.join(nobackup,outpath,"_".join(['merged', dataset_name, syst_shift, str(i)])+".root")
-        cmd = ["hadd", merged_name] + chunk
-        proc = subprocess.Popen(cmd, stdin=subprocess.PIPE)
-        proc.communicate()
+        lst = [line.rstrip() for line in f]
+    chunks = [lst[x:x+args.chunksize] for x in range(0, len(lst), args.chunksize)]
+    print(f'merging {len(lst)} files in chunks of {args.chunksize} totaling {len(chunks)} chunks')
+
+    if args.run_merge:
+        cp_list = []
+        # Merge each division
+        for i,chunk in enumerate(chunks):
+            t0 = time.time()
+            fname = "merged_{dataset_name}_{i}_{uid}.root".format(dataset_name=dataset_name, i=i, uid=uuid.uuid4())
+    
+            merged_name = os.path.join(nobackup,outpath,fname)
+            cmd = ["hadd", suppression_level, merged_name] + chunk
+            proc = subprocess.Popen(cmd, stdin=subprocess.PIPE)
+            proc.communicate()
+    
+            timestamp = time.strftime('%Y%m%d_%H%M%S',time.localtime())
+            print(time.time()-t0)
+    
+            with open(f'../Outputs/toremove/torm_{i}_{timestamp}.sh', 'w') as f:
+                for c in chunk:
+                    f.write('eosrm '+c.replace(starter,'')+"\n")
+            cp_list.append(f'xrdcp {merged_name} {cerneos}/2018/{fname}\n')
+            
+            if i==9: break
+        
+        with open(f'{os.path.join(nobackup,outpath)}/tocp_{dataset_name}.sh', 'w') as f:
+            f.writelines(cp_list)
+    
+            
 
 run_dict = {
     "2016preVFP_SingleElectron": [
@@ -158,6 +138,8 @@ run_dict = {
     "TTToHadronic": ["TTToHadronic_TuneCP5"]
 }
 
+#source /cvmfs/sft.cern.ch/lcg/app/releases/ROOT/6.36.08/x86_64-almalinux9.7-gcc115-opt/bin/thisroot.sh
+
 if __name__=="__main__":
     parser = ArgumentParser("Merging skims given groups of files to merge")
     parser.add_argument("year")
@@ -165,6 +147,8 @@ if __name__=="__main__":
     parser.add_argument("-p", "--outpath", default='/uscms_data/d3/honor/Outputs/', help="")
     parser.add_argument("-s", "--syst", default='nominal', help='Which systematic shift to apply')
     parser.add_argument("-e", "--eos", action='store_true')
+    parser.add_argument("-r", "--run_merge", action='store_true')
+    parser.add_argument("-c", "--chunksize", type=int, default=150)
     args = parser.parse_args()
     
     if not args.eos:
@@ -177,4 +161,4 @@ if __name__=="__main__":
              torun=[args.name]
                  
          for dataset in torun:
-             merge_eos_skims(dataset, args.year, outpath=args.outpath)
+             merge_eos_skims(dataset, args, outpath=args.outpath)
