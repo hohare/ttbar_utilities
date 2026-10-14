@@ -31,10 +31,10 @@ def merge_eos_skims(dataset_name,
     
     # Divide file list
     with open('filelst.txt') as f:
-        lst = [line.rstrip() for line in f]
+        lst = [line.rstrip() for line in f if "merged" not in line]
     chunks = [lst[x:x+args.chunksize] for x in range(0, len(lst), args.chunksize)]
     print(f'merging {len(lst)} files in chunks of {args.chunksize} totaling {len(chunks)} chunks')
-
+    
     if args.run_merge:
         cp_list = []
         # Merge each division
@@ -53,9 +53,9 @@ def merge_eos_skims(dataset_name,
             with open(f'../Outputs/toremove/torm_{i}_{timestamp}.sh', 'w') as f:
                 for c in chunk:
                     f.write('eosrm '+c.replace(starter,'')+"\n")
-            cp_list.append(f'xrdcp {merged_name} {cerneos}/2018/{fname}\n')
+            cp_list.append(f'xrdcp {merged_name} {fnaleos}/2018/{dataset_name}/{fname}\n')
             
-            if i==9: break
+            if i==30: break
         
         with open(f'{os.path.join(nobackup,outpath)}/tocp_{dataset_name}.sh', 'w') as f:
             f.writelines(cp_list)

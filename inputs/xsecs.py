@@ -3,11 +3,12 @@ lumis = {
     "2017": 42068.228660,
     "2018": 59561.262519,
 
-    "2016preVFP": 16783.112367,
-    "2016postVFP": 19530.640977
+    "2016preVFP": 19530.640977,
+    "2016postVFP": 16783.112367,
 }
 
 # Trusting Joseph's AN Appendix A
+# in pb
 xsecs = {
     "dim6top": 366.3580,
     "TTbar_SL": 366.3580,
@@ -68,50 +69,6 @@ xsecs = {
     "TTZToLLNuNu_M-10": 0.2432,
     "TTZToQQ": 0.5104
 }
-sumGenWeights = {
-    "dim6top": 500000.0,
-    #"dim6top": 46768736.25,
-    #"dim6top": 941904.825,
-    "TTbar_SL": 107070990580.,
-    "TTToSemiLeptonic": 107070990580.,
-    "TTTo2L2Nu": 7714156244,
-    "WJetsToLNu_HT-70To100": 44625287,
-    "WJetsToLNu_HT-100To200": 47691676,
-    "WJetsToLNu_HT-200To400": 42400350,
-    "WJetsToLNu_HT-400To600": 5470704,
-    "WJetsToLNu_HT-600To800": 5484477,
-    "WJetsToLNu_HT-800To1200": 5389834,
-    "WJetsToLNu_HT-1200To2500": 4935967,
-    "WJetsToLNu_HT-2500ToInf": 1185699,
-    
-    "WJetsToLNu70": 44625287,
-    "WJetsToLNu100": 47691676,
-    "WJetsToLNu200": 42400350,
-
-    "DYJetsToLL": 102486448,
-    "ST_s-channel": 50285368,
-    "ST_tchannel_top_InclusiveDecays": 50285368,
-    "ST_tchannel_antitop_InclusiveDecays": 4424248015,
-
-    "QCD_Pt-30to50_EMEnriched": 8784542.,
-    "QCD_Pt-50to80_EMEnriched": 10590542.,
-    "QCD_Pt-80to120_EMEnriched": 9617337.,
-    "QCD_Pt-120to170_EMEnriched": 9892351.,
-    "QCD_Pt-170to300_EMEnriched": 3681297.,
-    "QCD_Pt-300toInf_EMEnriched": 2214934.,
-
-    "QCD_Pt-20To30_MuEnrichedPt5": 61818090,
-    "QCD_Pt-30To50_MuEnrichedPt5": 62590413,
-    "QCD_Pt-50To80_MuEnrichedPt5": 40002811,
-    "QCD_Pt-80To120_MuEnrichedPt5": 45593306,
-    "QCD_Pt-120To170_MuEnrichedPt5": 41219031,
-    "QCD_Pt-170To300_MuEnrichedPt5": 73066072,
-    "QCD_Pt-300To470_MuEnrichedPt5": 58597958,
-    "QCD_Pt-470To600_MuEnrichedPt5": 39816958,
-    "QCD_Pt-600To800_MuEnrichedPt5": 39326157,
-    "QCD_Pt-800To1000_MuEnrichedPt5": 78171998,
-    "QCD_Pt-1000_MuEnrichedPt5": 27537497,
-}
 
 def lumixsec_scaling(year, sample, sum_of_weights, isEFT):
     """Find scaling of histogram by luminosity and event type cross-section"""
@@ -120,3 +77,11 @@ def lumixsec_scaling(year, sample, sum_of_weights, isEFT):
             xsec = xsecs[x]
             break
     return lumis[year]*xsec / sum_of_weights
+
+def xsec_scaling(year, sample, sum_of_weights, isEFT):
+    for x in xsecs.keys():
+        if sample.startswith(x): 
+            xsec = xsecs[x]
+            break
+    return xsec / sum_of_weights
+    
