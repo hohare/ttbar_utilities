@@ -1,11 +1,5 @@
-# in fb
-lumis = {
-    "2017": 42068.228660,
-    "2018": 59561.262519,
-
-    "2016preVFP": 19530.640977,
-    "2016postVFP": 16783.112367,
-}
+import json
+lumis = json.load(open('ttbar_utilities/inputs/luminosity_in_fb.json'))
 
 # Trusting Joseph's AN Appendix A
 # in pb
@@ -39,6 +33,8 @@ xsecs = {
     "ST_tW_top_5f_NoFullyHadronicDecays": 19.466,
     "ST_t-channel_top_4f": 136.02,
     "ST_t-channel_antitop_4f": 80.95,
+    "ST_t-channel_top": 136.02,
+    "ST_t-channel_antitop": 80.95,
     "ST_tW_antitop_5f": 19.466,
     "ST_tW_top_5f": 19.466,
 
@@ -49,7 +45,7 @@ xsecs = {
     "QCD_Pt-170to300_EMEnriched": 16480.,
     "QCD_Pt-300toInf_EMEnriched": 1099.,
 
-    "QCD_Pt-20To50_MuEnrichedPt5": 252600.0,
+    "QCD_Pt-20To30_MuEnrichedPt5": 2526000.0,
     "QCD_Pt-30To50_MuEnrichedPt5": 1362000.0,
     "QCD_Pt-50To80_MuEnrichedPt5": 376600.0,
     "QCD_Pt-80To120_MuEnrichedPt5": 88930.0,
@@ -76,9 +72,9 @@ def lumixsec_scaling(year, sample, sum_of_weights, isEFT):
         if sample.startswith(x): 
             xsec = xsecs[x]
             break
-    return lumis[year]*xsec / sum_of_weights
+    return 1e3*lumis[year][year]*xsec / sum_of_weights
 
-def xsec_scaling(year, sample, sum_of_weights, isEFT):
+def xsec_scaling(sample, sum_of_weights, isEFT):
     for x in xsecs.keys():
         if sample.startswith(x): 
             xsec = xsecs[x]
