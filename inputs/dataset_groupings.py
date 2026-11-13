@@ -1,12 +1,23 @@
 
 data = {
-    "2017": [
-        "data_muonB","data_electronB",
-        "data_muonC","data_electronC",
-        "data_muonD","data_electronD",
-        "data_muonE","data_electronE",
-        "data_muonF","data_electronF",
-        ],
+    "2018": [
+        ""
+    ],
+    "2017": {
+        "2017": [
+                "data_Run2017B_SingleMuon","data_Run2017B_SingleElectron",
+                "data_Run2017C_SingleMuon","data_Run2017C_SingleElectron",
+                "data_Run2017D_SingleMuon","data_Run2017D_SingleElectron",
+                "data_Run2017E_SingleMuon","data_Run2017E_SingleElectron",
+                "data_Run2017F_SingleMuon","data_Run2017F_SingleElectron",
+            ],
+        "B": ["data_Run2017B_SingleMuon","data_Run2017B_SingleElectron"],
+        "C": ["data_Run2017C_SingleMuon","data_Run2017C_SingleElectron"],
+        "D": ["data_Run2017D_SingleMuon","data_Run2017D_SingleElectron"],
+        "E": ["data_Run2017E_SingleMuon","data_Run2017E_SingleElectron"],
+        "EF": ["data_Run2017E_SingleMuon","data_Run2017E_SingleElectron", "data_Run2017F_SingleMuon","data_Run2017F_SingleElectron"],
+        "F": ["data_Run2017F_SingleMuon","data_Run2017F_SingleElectron"],
+    },
     "2016preVFP": [
         "Data_2016_RunFhimp_SingleElectron",
         "Data_2016_RunEhimp_SingleElectron",
@@ -30,7 +41,7 @@ data = {
 }
 
 ttbar_sl = ["Correct","Wrong","Unmatchable","merged","tau"]#["TTToSemiLeptonic"]
-ttbar_dilep = ['TTTo2L2Nu']
+ttbar_dilep = ['TTTo2L2Nu', 'TTTo2L2Nu_TuneCP5']
 ttbar = ttbar_sl+ttbar_dilep
 ST = [
     "ST_t-channel_top_4f_InclusiveDecays",
@@ -74,9 +85,9 @@ QCD = [
 ]
 EW = WJets+DY+MISC+TTX
 
-def get_grouping(year):
+def get_grouping(year, era):
     grouping = {
-        "data": data[year],
+        "data": data[year][era],
         "Correct": ["Correct"],
         "Wrong": ["Wrong"],
         "Unmatchable": ["Unmatchable"],
@@ -85,7 +96,7 @@ def get_grouping(year):
         "tt SL": ttbar_sl,
         "tt DL": ttbar_dilep,
         "TTbar": ttbar_sl+ttbar_dilep,
-        "Single top quark": ST+tW,
+        "Single Top": ST+tW,
         "tW": tW,
         "W+jets": WJets,
         "DY": DY,
@@ -96,4 +107,5 @@ def get_grouping(year):
         "EW+QCD (Data-Driven)": [],
         "EW+QCD (sim)": EW+QCD,
     }
+    print(grouping['data'])
     return grouping

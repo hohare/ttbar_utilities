@@ -1,3 +1,24 @@
+ttbar = r't\bar{t}'
+HadT = r't_{h}'
+LepT = r't_{\mathscr{l}}'
+HadW = r'W_{h}'
+LepW = r'W_{\mathscr{l}}'
+HadB = r'b_{h}'
+LepB = r'b_{\mathscr{l}}'
+Wup = r'W_{up}'
+Wdn = r'W_{down}'
+Lepton = r'\mathscr{l}'
+Nu = r'\nu'
+
+
+import matplotlib.pyplot as plt
+plt.rcParams.update({
+    "xtick.labelsize": 16,
+    "ytick.labelsize": 16,
+    "axes.labelsize": 16,
+    "legend.title_fontsize": 16
+})
+
 ###############
 # PLOT COLORS #
 ###############
@@ -9,13 +30,13 @@ dataset2color = {
     "TTbar": colors[0],
     "tt SL": colors[0],
     "tt DL": colors[5],
-    "Single top quark": colors[1],
+    "Single Top": colors[1],
     "EW (sim)": colors[2], 
     "QCD (sim)": colors[3],
     # longer format
     "Correct": colors10[0],
-    "Unmatchable": colors10[9],
     "Wrong": colors10[7],
+    "Unmatchable": colors10[9],
     "merged": colors10[3],
     "tau": colors10[8],
     # slightly broken down categories
@@ -28,6 +49,17 @@ dataset2color = {
 def get_colors(dataset_list):
     """Retrieve colors corresponding to input list of datasets"""
     return[dataset2color[ds] for ds in dataset_list]
+
+
+####################
+# DATASET TO LABEL #
+####################
+
+dataset2label = {
+    "TTbar": r'$'+ttbar+'$',
+    "Single Top": "Single top quark",
+}
+
 
 #############
 # SIDEBANDS #
@@ -56,11 +88,13 @@ variables = {
     'phi': r'\phi',
     'rapidity': 'y',
     'rapidity_abs': '|y|',
+    'rapidityAbs': '|y|',
     'deltaR': r'\Delta r',
-    'deltay_abs': r'|y_1-y_2}',
-    'delta_yabs': r'|y_1|-|y_2|',
+    'deltay_abs': r'\lvert y_1-y_2\rvert',
+    'delta_yabs': r'\lvert y_1\rvert -\lvert y_2| \rvert',
     'deltaphi': r'\Delta\phi',
     'discrim': r'\lambda',
+    'ctstar': r'\cos(\theta^{*})'
 }
 
 units = {
@@ -71,50 +105,60 @@ units = {
     'phi': '',
     'mass': r'[GeV]',
     'rapidity':'',
-    'rapidity_abs':''
+    'rapidity_abs':'',
+    'ctstar': ''
 }
 
 objects = {
     'joint': '',
     'mass': r'_{m}',
     'nu': r'_{\nu}',
-    'ttbar': r't\bar{t}',
-    'hadt' : 't_{h}',
-    'lept' : r't_{\mathscr{l}}',
-    'hadW' : r'W_{h}',
-    'lepW' : r'W_{\mathscr{l}}',
-    'HadB': r'b_{h}',
-    'LepB': r'b_{\mathscr{l}}',
-    'Wup': r'W_{up}',
-    'Wdn': r'W_{down}',
-    'Lepton' : r'\mathscr{l}',
-    'Nu': '\nu',
+    'ttbar': ttbar,
+    'hadt' : HadT,
+    'lept' : LepT,
+    'HadT' : HadT,
+    'LepT' : LepT,
+    'hadW' : HadW,
+    'lepW' : LepW,
+    'HadW' : HadW,
+    'LepW' : LepW,
+    'HadB': HadB,
+    'LepB': LepB,
+    'Wup': Wup,
+    'Wdn': Wdn,
+    'Lepton' : Lepton,
+    'Nu': Nu,
     'MET' : r'MET',
     'leadingJet': r'\mathrm{leading \: jet}',
     'subleadingJet': r'\mathrm{subleading \: jet}',
-    'H_T': r'H_T',
-    'S_T': r'S_T',
+    'HT': r'H_T',
+    'ST': r'S_T',
     # break point
-    'lep_HadB': '\mathscr{l},b_h',
-    'lep_LepB': '\mathscr{l},b_\mathscr{l}',
-    'lep_Wdn': '\mathscr{l},W_{dn}',
-    'lep_Wup': '\mathscr{l},W_{up}',
-    'hadt_lept': 't_{h},t_{\mathscr{l}}',
-    'lepWdn': '\mathscr{l},W_{down}',
-    'lephadB': '\mathscr{l},t_{h}',
-    'leplepB': '\mathscr{l},t_{\mathscr{l}}',
-    'hadTlepT': 't_{h},t_{\mathscr{l}}',
-    'hadBlepB': 'b_{h},b_{\mathscr{l}}',
-    'lepTlepB': 't_{h},b_{\mathscr{l}}',
-    'lepThadB': 't_{h},b_{h}',
+    'lep_HadB': r'\mathscr{l},b_h',
+    'lep_LepB': r'\mathscr{l},b_\mathscr{l}',
+    'lep_Wdn': r'\mathscr{l},W_{dn}',
+    'lep_Wup': r'\mathscr{l},W_{up}',
+    'hadt_lept': r't_{h},t_{\mathscr{l}}',
+    'lepWdn': r'\mathscr{l,W_{down}',
+    'lephadB': r'\mathscr{l},t_{h}',
+    'leplepB': r'\mathscr{l},t_{\mathscr{l}}',
+    'hadTlepT': r't_{h},t_{\mathscr{l}}',
+    'hadBlepB': r'b_{h},b_{\mathscr{l}}',
+    'lepTlepB': r't_{h},b_{\mathscr{l}}',
+    'lepThadB': r't_{h},b_{h}',
 }
 
 def get_axisname(var, obj):
     if obj=='phi':  return 'phi MET'
-    index = list(objects.keys()).index(obj)
+    #index = list(objects.keys()).index(obj)
     if var.startswith('delta'):
         return r'$'+variables[var]+'('+objects[obj]+')$ '
     elif var == 'discrim':
         return r'$'+variables[var]+objects[obj]+'$ '
     else:
         return r'$'+variables[var]+'^{('+objects[obj]+')}$ ' + units[var]
+
+
+########
+# XLIM #
+########

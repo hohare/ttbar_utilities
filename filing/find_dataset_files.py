@@ -66,7 +66,7 @@ def run_only_files(args, datasets):
     outpath = os.path.join(args.sample_path, args.year, outname)+".json"
     with open(outpath,"w") as fout:
         json.dump(d, fout, indent=4)
-    print(f'Wrote {outname} to {outpath}\n')
+    print(f'Wrote {len(out_list)} {outname} to {outpath}\n')
 
 def run_intermediary(args):
     datasets = json.load(open(args.sample_path+f'samples_{args.year}.json'))

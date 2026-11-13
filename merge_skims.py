@@ -53,9 +53,11 @@ def merge_eos_skims(dataset_name,
             with open(f'../Outputs/toremove/torm_{i}_{timestamp}.sh', 'w') as f:
                 for c in chunk:
                     f.write('eosrm '+c.replace(starter,'')+"\n")
-            cp_list.append(f'xrdcp {merged_name} {fnaleos}/2018/{dataset_name}/{fname}\n')
+            cp_list.append(f'xrdcp {merged_name} {fnaleos}/{args.year}/{dataset_name}/{fname}\n')
             
-            if i==30: break
+            if args.setmax and i>10: 
+                print('proper break')
+                break
         
         with open(f'{os.path.join(nobackup,outpath)}/tocp_{dataset_name}.sh', 'w') as f:
             f.writelines(cp_list)
@@ -134,7 +136,7 @@ run_dict = {
     ],
     "DY": ["DYJetsToLL_M-50_TuneCP5"],
     "TTToSemiLeptonic": ["TTToSemiLeptonic_TuneCP5"],
-    "TTTo2L2Nu": ["TTTo2L2Nu_TuneCP5"],
+    "TTTo2L2Nu": ["TTTo2L2Nu"],#["TTTo2L2Nu_TuneCP5"],
     "TTToHadronic": ["TTToHadronic_TuneCP5"]
 }
 
@@ -149,6 +151,7 @@ if __name__=="__main__":
     parser.add_argument("-e", "--eos", action='store_true')
     parser.add_argument("-r", "--run_merge", action='store_true')
     parser.add_argument("-c", "--chunksize", type=int, default=150)
+    parser.add_argument("-m", "--setmax", action='store_true', )
     args = parser.parse_args()
     
     if not args.eos:

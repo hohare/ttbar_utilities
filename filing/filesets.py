@@ -26,6 +26,10 @@ def getFileset(sample, startFile=0, nFiles=-1, verbose=False,
     fileset_all = {}
 
     inputSamples = glob.glob(JSONDir+"*"+detailKey+"*.json")
+    if "ext" not in detailKey:
+        # central EFT sample has datasets with -extX on the end
+        # don't want to accidentally pick up those unless specified
+        inputSamples = [key for key in inputSamples if "ext" not in key]
     if len(inputSamples) == 0:
         raise Exception("Error: no json file like", detailKey, " found in:", JSONDir)
     # open all json files and dump them into the dictionary
@@ -85,21 +89,26 @@ def save_skimlist2jsons(year):
     proc.communicate()
     #CERN
     cmd = ["./get_fileset.sh", year, "CERN"]
-    proc = subprocess.Popen(cmd, stdin=subprocess.PIPE)
-    proc.communicate()
+    #proc = subprocess.Popen(cmd, stdin=subprocess.PIPE)
+    #proc.communicate()
 
-    basepath = f"~/private/ttbar/Inputs/{year}/skims/"
+    #basepath = f"~/private/ttbar/Inputs/{year}/skims/"
+    basepath = f"/uscms/home/honor/private/ttbareft/Inputs/{year}/skims/"
     #***** PUT LISTS INTO JSONS *****#
+    full_fileset = {}
     filelist = glob.glob(basepath+"*.txt")
     for fpath in filelist:
         with open(fpath, "r") as f:
             fset = f.readlines()
         fset = [f[:-1] for f in fset]#remove newline
         dataset = fpath.split("/")[-1][:-9]#remove -LOCATION.root
+        full_fileset.update({dataset:fset})
+        
         with open(basepath+f"{dataset}.json", "w") as f:
             json.dump({dataset: fset}, f, indent=4)
-    
-    
+
+    with open(basepath+"fileset.json","w") as f:
+        json.dump(full_fileset, f, indent=4)
 
 if __name__ == '__main__':
     parser = ArgumentParser()
