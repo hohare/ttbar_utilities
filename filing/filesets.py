@@ -26,6 +26,10 @@ def getFileset(sample, startFile=0, nFiles=-1, verbose=False,
     fileset_all = {}
 
     inputSamples = glob.glob(JSONDir+"*"+detailKey+"*.json")
+    if "ext" not in detailKey:
+        # central EFT sample has datasets with -extX on the end
+        # don't want to accidentally pick up those unless specified
+        inputSamples = [key for key in inputSamples if "ext" not in key]
     if len(inputSamples) == 0:
         raise Exception("Error: no json file like", detailKey, " found in:", JSONDir)
     # open all json files and dump them into the dictionary

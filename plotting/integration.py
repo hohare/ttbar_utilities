@@ -2,20 +2,21 @@ import hist
     
 # Integration dictionaries to plot key0_key1 from histo[key0] with axis Object=key1
 default_mapping = {
-    "leptype": sum,
+    "Leptype": sum,
     "systematic": "nominal",
-    "WC": "allWC_0"
+    #"WC": "allWC_0"
+    "WC": "SM",
 }
 # Potential groups of datasets to plot
-ttbar_datasets = ['Correct','Unmatchable','Wrong','merged','tau']
+ttbar_datasets = ['Correct', 'Wrong', 'Unmatchable', 'merged','tau']
 processes = {
-    "datadriven": ttbar_datasets+['tt DL','Single top quark','EW+QCD (Data-Driven)'],
-    "process": ['tt SL','tt DL','Single top quark','W+jets', 'Misc', 'QCD (sim)'],
-    "process_ttSL": ttbar_datasets+['tt DL','Single top quark','W+jets','Misc', 'QCD (sim)'],
-    "process_EW": ['tt SL','tt DL','Single top quark','EW (sim)', 'QCD (sim)'],
-    "simple": ['TTbar','Single top quark', 'EW (sim)', 'QCD (sim)'],
-    "EWQCD_estimation": ['TTbar','Single top quark', 'EW+QCD (Data-Driven)'],
-    "preEWQCD_estimation": ['TTbar','Single top quark', 'W+jets','Misc', 'QCD (sim)']
+    "datadriven": ttbar_datasets+['tt DL','Single Top','EW+QCD (Data-Driven)'],
+    "process": ['tt SL','tt DL','Single Top','W+jets', 'Misc', 'QCD (sim)'],
+    "process_ttSL": ttbar_datasets+['tt DL','Single Top','W+jets','Misc', 'QCD (sim)'],
+    "process_EW": ['tt SL','tt DL','Single Top','EW (sim)', 'QCD (sim)'],
+    "simple": ['TTbar','Single Top', 'EW (sim)', 'QCD (sim)'],
+    "EWQCD_estimation": ['TTbar','Single Top', 'EW+QCD (Data-Driven)'],
+    "preEWQCD_estimation": ['TTbar','Single Top', 'W+jets','Misc', 'QCD (sim)']
 }
 
 def complete_integration(histograms, distribution, **kwargs):
@@ -38,8 +39,12 @@ def complete_integration(histograms, distribution, **kwargs):
     for key in default_mapping:
         if (key in histograms[_split[0]].axes.name) and (key not in kwargs):
             integ_dict.update({key: default_mapping[key]})
+    # solo sideband option
+    if "sideband" in kwargs:
+        integ_dict.update({'Sideband': [kwargs['sideband']]})
     # axes specific to this histogram
     integ_dict.update({"Object": kwargs['object_type']})
+    print(integ_dict)
     # perform integration
     result_histo = histograms[histoname][integ_dict]
     return result_histo
